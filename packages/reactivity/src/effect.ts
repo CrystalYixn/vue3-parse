@@ -27,6 +27,13 @@ class ReactiveEffect {
       this.parent = null
     }
   }
+
+  stop() {
+    if (this.active) {
+      this.active = false
+      clearEffect(this)
+    }
+  }
 }
 
 const targetMap = new WeakMap<object, Map<string, Set<ReactiveEffect>>>()
@@ -34,6 +41,9 @@ const targetMap = new WeakMap<object, Map<string, Set<ReactiveEffect>>>()
 export function effect(fn) {
   const _effect = new ReactiveEffect(fn)
   _effect.run()
+  const runner = _effect.run.bind(_effect)
+  runner.effect = _effect
+  return runner
 }
 
 export function track(target, type, key) {
@@ -83,5 +93,3 @@ export function clearEffect(effect: ReactiveEffect) {
   // 双向删除, 删除 effect 中依赖的 dep
   effect.deps.length = 0
 }
-
-console.log(targetMap)
