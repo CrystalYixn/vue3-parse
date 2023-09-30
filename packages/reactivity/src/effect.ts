@@ -17,6 +17,7 @@ class ReactiveEffect {
     try {
       this.parent = activeEffect
       activeEffect = this
+      clearEffect(this)
       return this.fn()
     } finally {
       // 很多东西没必要放在全局, 对象相关的流程逻辑尽量封装到对象内部实现
@@ -56,11 +57,31 @@ export function trigger(target, type, key, value, oldValue) {
   const depsMap = targetMap.get(target)
   // 未被收集的响应式属性不处理
   if (!depsMap) return
-  const effects = depsMap.get(key)
-  effects?.forEach(e => {
-    // 过滤在 effect 中重新触发当前 effect 的情况
-    e !== activeEffect && e.run()
+  let effects = depsMap.get(key)
+  if (effects) {
+    // 必须要创建一个新对象, 否则在循环过程中删除后又添加会导致死循环
+    // 如: let s=new Set([0]);
+    // s.forEach(i => {s.delete(0);s.add(0);console.log('6')});
+    // 数组的 forEach 实现内部会创建一个拷贝, 不会死循环
+    effects = new Set(effects)
+    effects.forEach(e => {
+      // 过滤在 effect 中重新触发当前 effect 的情况
+      e !== activeEffect && e.run()
+    })
+  }
+}
+
+export function clearEffect(effect: ReactiveEffect) {
+  const { deps } = effect
+  // QAA 这样不是把其他 dep 中收集的此 effect 也删掉了吗
+  // effect 中的 deps 仅收集 fn 中全部的 effect, 后续重新执行 fn 也重新收集了
+  // 不存在不在 fn 中的属性引用了此 effect 的情况
+  deps.forEach(dep => {
+    // 删除 dep 中收集的 effect
+    dep.delete(effect)
   })
+  // 双向删除, 删除 effect 中依赖的 dep
+  effect.deps.length = 0
 }
 
 console.log(targetMap)
