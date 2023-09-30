@@ -13,5 +13,8 @@
     "esbuild": "^0.14.27",
     "minimist": "^1.2.8",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "vue": "^3.3.4"
   }
 }
