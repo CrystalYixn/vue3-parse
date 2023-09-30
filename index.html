@@ -11,27 +11,16 @@
   <script src="packages/reactivity/dist/reactivity.global.js"></script>
   <script>
     const { effect, reactive } = VueReactivity
-    const state = reactive({ age: 18 })
+    const state = reactive({ age: 18, address: { province: '北京' } })
     let waiting = false
     const runner = effect(() => {
       console.count('effect render')
       app.innerHTML = `今年${state.age}岁`
-    }, {
-      scheduler() {
-        console.log(` ================== scheduler run ================= `, )
-        if (!waiting) {
-          waiting = true
-          setTimeout(() => {
-            runner()
-            waiting = false
-          }, 1000)
-        }
-      }
     })
-
-    state.age = 17
-    state.age = 16
-    state.age = 15
+    console.log(state)
+    setTimeout(() => {
+      console.log(state.address)
+    }, 1000);
   </script>
 </body>
 </html>

@@ -13,6 +13,7 @@ export function reactive(target: any) {
   // 防止响应式嵌套响应式 (旧方案是建立一个双向 map, 通过传入的对象反向查找然后返回)
   if (target[ReactiveFlags.IS_REACTIVE]) return target
   proxy = new Proxy(target, mutableHandler)
+  console.log(` ================== 响应式劫持 ================= `, target)
   reactiveMap.set(target, proxy)
   return proxy
 }
