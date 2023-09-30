@@ -1,6 +1,7 @@
 export let activeEffect: ReactiveEffect | null = null
 
-class ReactiveEffect {
+/** 响应式核心, 执行函数与更新调度器 */
+export class ReactiveEffect {
   // ts 写法, 要求在 constructor 前在外边定义
   active = true
   parent = null
@@ -20,7 +21,7 @@ class ReactiveEffect {
       clearEffect(this)
       return this.fn()
     } finally {
-      // 很多东西没必要放在全局, 对象相关的流程逻辑尽量封装到对象内部实现
+      // 很多东西没必要放在全局, 对象相关的流程逻辑尽量封装到对象内部实现, 高内聚低耦合
       // 从栈结构转换为了树结构, 减少全局污染
       // 每个对象只关心他的父亲而不关心栈里的其他 Effect , 所以逻辑更清晰
       activeEffect = this.parent
@@ -46,6 +47,7 @@ export function effect(fn, options: any = {}) {
   return runner
 }
 
+/** 收集属性依赖 */
 export function track(target, type, key) {
   if (!activeEffect) return
   let depsMap = targetMap.get(target)
@@ -56,6 +58,11 @@ export function track(target, type, key) {
   if (!dep) {
     depsMap.set(key, (dep = new Set()))
   }
+  trackEffects(dep)
+}
+
+/** 将 dep 与 effect 互相绑定收集依赖 */
+export function trackEffects(dep) {
   const shouldTrack = !dep.has(activeEffect)
   if (shouldTrack) {
     dep.add(activeEffect)
@@ -63,11 +70,17 @@ export function track(target, type, key) {
   }
 }
 
+/** 触发所有收集此属性的 effect 执行 */
 export function trigger(target, type, key, value, oldValue) {
   const depsMap = targetMap.get(target)
   // 未被收集的响应式属性不处理
   if (!depsMap) return
   let effects = depsMap.get(key)
+  triggerEffects(effects)
+}
+
+/** 循环遍历 effects 执行调度器或直接执行 */
+export function triggerEffects(effects) {
   if (effects) {
     // 必须要创建一个新对象, 否则在循环过程中删除后又添加会导致死循环
     // 如: let s=new Set([0]);

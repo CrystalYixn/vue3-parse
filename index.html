@@ -10,16 +10,18 @@
   <!-- <script src="node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
   <script src="packages/reactivity/dist/reactivity.global.js"></script>
   <script>
-    const { effect, reactive } = VueReactivity
-    const state = reactive({ age: 18, address: { province: '北京' } })
-    let waiting = false
+    const { effect, reactive, computed } = VueReactivity
+    const state = reactive({ firstName: 'wang', lastName: 'huahua' })
+    const fullName = computed(() => {
+      return state.firstName + state.lastName
+    })
+    console.log(` ================== state ================= `, state)
     const runner = effect(() => {
       console.count('effect render')
-      app.innerHTML = `今年${state.age}岁`
+      app.innerHTML = `今年${fullName.value}岁`
     })
-    console.log(state)
     setTimeout(() => {
-      console.log(state.address)
+      state.firstName = 'zhang'
     }, 1000);
   </script>
 </body>

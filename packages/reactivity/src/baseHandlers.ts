@@ -16,6 +16,7 @@ export const mutableHandler = {
       // 在访问的属性是一个对象时才对这个对象做代理, 没有直接深度遍历, 优化了性能
       return reactive(res)
     }
+    return res
     // 不能使用, 如果 target[key] 的值是一个访问器读取了 this 会导致无法监听
     // return target[key]
   },
