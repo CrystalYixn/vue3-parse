@@ -10,7 +10,7 @@ export function reactive(target: any) {
   // 防止重复响应式
   let proxy = reactiveMap.get(target)
   if (proxy) return proxy
-  // 防止响应式嵌套响应式
+  // 防止响应式嵌套响应式 (旧方案是建立一个双向 map, 通过传入的对象反向查找然后返回)
   if (target[ReactiveFlags.IS_REACTIVE]) return target
   proxy = new Proxy(target, mutableHandler)
   reactiveMap.set(target, proxy)
