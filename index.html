@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app"></div>
+  <!-- <script src="node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
+  <script src="packages/reactivity/dist/reactivity.global.js"></script>
+  <script>
+    const { effect, reactive } = VueReactivity
+    const state = reactive({ age: 18 })
+    let waiting = false
+    const runner = effect(() => {
+      console.count('effect render')
+      app.innerHTML = `今年${state.age}岁`
+    }, {
+      scheduler() {
+        console.log(` ================== scheduler run ================= `, )
+        if (!waiting) {
+          waiting = true
+          setTimeout(() => {
+            runner()
+            waiting = false
+          }, 1000)
+        }
+      }
+    })
+
+    state.age = 17
+    state.age = 16
+    state.age = 15
+  </script>
+</body>
+</html>

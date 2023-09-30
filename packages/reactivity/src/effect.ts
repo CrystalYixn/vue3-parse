@@ -8,7 +8,7 @@ class ReactiveEffect {
   // 如 flag ? this.name : this.age 切换 flag 时清除另一方的收集使用
   deps = []
   // ts 写法, 会自动将 fn 挂载到 this 上
-  constructor(public fn) { }
+  constructor(public fn, public scheduler) { }
 
   /** 执行 effect */
   run() {
@@ -38,8 +38,8 @@ class ReactiveEffect {
 
 const targetMap = new WeakMap<object, Map<string, Set<ReactiveEffect>>>()
 
-export function effect(fn) {
-  const _effect = new ReactiveEffect(fn)
+export function effect(fn, options: any = {}) {
+  const _effect = new ReactiveEffect(fn, options.scheduler)
   _effect.run()
   const runner = _effect.run.bind(_effect)
   runner.effect = _effect
@@ -76,7 +76,13 @@ export function trigger(target, type, key, value, oldValue) {
     effects = new Set(effects)
     effects.forEach(e => {
       // 过滤在 effect 中重新触发当前 effect 的情况
-      e !== activeEffect && e.run()
+      if (e !== activeEffect) {
+        if (e.scheduler) {
+          e.scheduler()
+        } else {
+          e.run()
+        }
+      }
     })
   }
 }
