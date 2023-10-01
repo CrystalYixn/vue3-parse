@@ -10,19 +10,41 @@
   <!-- <script src="node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
   <script src="packages/reactivity/dist/reactivity.global.js"></script>
   <script>
-    const { effect, reactive, computed } = VueReactivity
-    const state = reactive({ firstName: 'wang', lastName: 'huahua' })
-    const fullName = computed(() => {
-      return state.firstName + state.lastName
+    // const { reactive, watch } = VueReactivity
+    // const state = reactive({ name: 'wanghuahua', address: { num: 1 } })
+    // watch(state, (newV, oldV) => {
+    //   console.log(` ================== newV, oldV ================= `, newV, oldV)
+    // })
+    // setTimeout(() => {
+    //   state.address.num = 2
+    // }, 1000)
+
+
+    // 处理接口先发后至问题
+    const API = {
+      getData(query, delay) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(`你查询的关键词是:${query}`)
+          }, delay)
+        })
+      }
+    }
+    const { reactive, watch } = VueReactivity
+    const state = reactive({ query: '' })
+    let delay = 1000
+    watch(() => state.query, async(newV, oldV, onCleanup) => {
+      let newest = true
+      onCleanup(() => {
+        newest = false
+      })
+      const res = await API.getData(newV, delay)
+      if (newest) app.innerHTML = res
     })
-    console.log(` ================== state ================= `, state)
-    const runner = effect(() => {
-      console.count('effect render')
-      app.innerHTML = `今年${fullName.value}岁`
-    })
-    setTimeout(() => {
-      state.firstName = 'zhang'
-    }, 1000);
+
+    state.query = '百'
+    delay = 0
+    state.query = '百度'
   </script>
 </body>
 </html>
