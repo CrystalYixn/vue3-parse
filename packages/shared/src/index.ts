@@ -19,3 +19,7 @@ export const isString = (val: unknown): val is string => {
 export const isNumber = (val: unknown): val is number => {
   return typeof val === 'number'
 }
+
+export const isNullish = (val: unknown): val is undefined|null => {
+  return typeof val === 'undefined' || typeof val === null
+}
