@@ -8,44 +8,17 @@
 <body>
   <div id="app"></div>
   <!-- <script src="node_modules/@vue/reactivity/dist/reactivity.global.js"></script> -->
-  <!-- <script src="packages/reactivity/dist/reactivity.global.js"></script> -->
-  <script src="./packages/runtime-dom/dist/runtime-dom.global.js"></script>
+  <script src="packages/reactivity/dist/reactivity.global.js"></script>
+  <!-- <script src="./packages/runtime-dom/dist/runtime-dom.global.js"></script> -->
   <script>
-    // const { reactive, watch } = VueReactivity
-    // const state = reactive({ name: 'wanghuahua', address: { num: 1 } })
-    // watch(state, (newV, oldV) => {
-    //   console.log(` ================== newV, oldV ================= `, newV, oldV)
-    // })
-    // setTimeout(() => {
-    //   state.address.num = 2
-    // }, 1000)
-
-
-    // 处理接口先发后至问题
-    const API = {
-      getData(query, delay) {
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(`你查询的关键词是:${query}`)
-          }, delay)
-        })
-      }
-    }
-    const { reactive, watch } = VueReactivity
-    const state = reactive({ query: '' })
-    let delay = 1000
-    watch(() => state.query, async(newV, oldV, onCleanup) => {
-      let newest = true
-      onCleanup(() => {
-        newest = false
-      })
-      const res = await API.getData(newV, delay)
-      if (newest) app.innerHTML = res
+    const { ref, effect } = VueReactivity
+    const state = ref(true)
+    effect(() => {
+      app.innerHTML = state.value ? '你好' : '不好'
     })
-
-    state.query = '百'
-    delay = 0
-    state.query = '百度'
+    setTimeout(() => {
+      state.value = false
+    }, 1000)
   </script>
 </body>
 </html>
