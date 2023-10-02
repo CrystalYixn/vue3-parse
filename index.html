@@ -11,13 +11,14 @@
   <script src="packages/reactivity/dist/reactivity.global.js"></script>
   <!-- <script src="./packages/runtime-dom/dist/runtime-dom.global.js"></script> -->
   <script>
-    const { ref, effect } = VueReactivity
-    const state = ref(true)
+    const { reactive, effect, toRefs } = VueReactivity
+    const state = reactive({ name: 'wanghuahua', age: 18 })
+    const { name, age } = toRefs(state)
     effect(() => {
-      app.innerHTML = state.value ? '你好' : '不好'
+      app.innerHTML = `姓名：${name.value}，年龄：${age.value}`
     })
     setTimeout(() => {
-      state.value = false
+      state.age = 20
     }, 1000)
   </script>
 </body>
