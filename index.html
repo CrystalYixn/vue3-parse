@@ -11,11 +11,12 @@
   <script src="packages/reactivity/dist/reactivity.global.js"></script>
   <!-- <script src="./packages/runtime-dom/dist/runtime-dom.global.js"></script> -->
   <script>
-    const { reactive, effect, toRefs } = VueReactivity
-    const state = reactive({ name: 'wanghuahua', age: 18 })
-    const { name, age } = toRefs(state)
+    const { effect, ref, proxyRefs } = VueReactivity
+    const name = ref('wanghuahua')
+    const age = ref(18)
+    const state = proxyRefs({ name, age })
     effect(() => {
-      app.innerHTML = `姓名：${name.value}，年龄：${age.value}`
+      app.innerHTML = `姓名：${state.name}，年龄：${state.age}`
     })
     setTimeout(() => {
       state.age = 20
