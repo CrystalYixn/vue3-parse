@@ -32,15 +32,16 @@ export function createRenderer(renderOptions) {
     container._vnode = vnode
   }
   
-  const normalize = (child) => {
-    if (isString(child)) {
-      return createVnode(Text, null, child)
+  const normalize = (children, i) => {
+    if (isString(children[i])) {
+      const vnode = createVnode(Text, null, children[i])
+      children[i] = vnode
     }
-    return child
+    return children[i]
   }
 
   const mountChildren = (children, container) => {
-    children.forEach(child => patch(null, normalize(child), container))
+    children.forEach((child, i) => patch(null, normalize(children, i), container))
   }
 
   function mountElement(vnode, container) {
@@ -70,11 +71,57 @@ export function createRenderer(renderOptions) {
     }
   }
 
+  const unmountChildren = (children) => {
+    children.forEach(child => {
+      unmount(child)
+    })
+  }
+
+  const patchChildren = (n1, n2, el) => {
+    const { shapeFlag: prevShapeFlag, children: c1 } = n1
+    const { shapeFlag, children: c2 } = n2
+    
+    // 新孩子是文本
+    if (shapeFlag & ShapeFlag.TEXT_CHILDREN) {
+      // 之前孩子是数组则删除旧的所有孩子
+      if (prevShapeFlag & ShapeFlag.ARRAY_CHILDREN) {
+        unmountChildren(c1)
+      }
+      // 设置文本
+      if (c1 !== c2) {
+        hostSetElementText(el, c2)
+      }
+    } else {
+      // 新孩子是空或者数组
+      // 之前孩子是是数组
+      if (prevShapeFlag & ShapeFlag.ARRAY_CHILDREN) {
+        // 新孩子也是数组则进入 diff
+        if (shapeFlag & ShapeFlag.ARRAY_CHILDREN) {
+
+        } else {
+          // 新孩子是空则清空旧孩子
+          unmountChildren(c1)
+        }
+      } else {
+        // 新孩子是空
+        // 之前孩子也是文本则清空旧内容
+        if (prevShapeFlag & ShapeFlag.TEXT_CHILDREN) {
+          hostSetElementText(el, '')
+        }
+        // 新孩子是数组
+        if (shapeFlag & ShapeFlag.ARRAY_CHILDREN) {
+          mountChildren(c2, el)
+        }
+      }
+    }
+  }
+
   const patchElement = (n1, n2, container) => {
     const el = n2.el = n1.el
     const oldProps = n1.props || {}
     const newProps = n2.props || {}
     patchProps(el, oldProps, newProps)
+    patchChildren(n1, n2, el)
   }
 
   const processText = (n1, n2, container) => {

@@ -14,11 +14,11 @@
     <script>
       const { render, h, Text } = VueRuntimeDOM
       render(
-        h('h1', { style: { color: 'red' } }, '1111'),
+        h('h1', { style: { color: 'red' } }, 'abc'),
         app
       )
       setTimeout(() => {
-        render(h('h1', { style: { color: 'blue', background: 'red' } }, '2222'), app)
+        render(h('h1', { style: { color: 'blue', background: 'red' } }, ['1111', '111']), app)
       }, 1000)
     </script>
   </body>
