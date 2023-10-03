@@ -13,20 +13,12 @@
     <script src="./packages/runtime-dom/dist/runtime-dom.global.js"></script>
     <script>
       const { render, h, Text } = VueRuntimeDOM
-      // render(h(Text, 'hello'), app)
       render(
-        h(Text, '777'),
-        // h(
-        //   'h1',
-        //   { style: { color: 'red' },
-        //   onClick:() => alert(1) },
-        //   // [h('span', 'hello'), h('span', 'world')],
-        //   ['123'],
-        // ),
+        h('h1', { style: { color: 'red' } }, '1111'),
         app
       )
       setTimeout(() => {
-        render(h(Text, '666'), app)
+        render(h('h1', { style: { color: 'blue', background: 'red' } }, '2222'), app)
       }, 1000)
     </script>
   </body>

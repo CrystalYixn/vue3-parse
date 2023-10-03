@@ -59,6 +59,24 @@ export function createRenderer(renderOptions) {
     hostInsert(el, container)
   }
 
+  const patchProps = (el, oldProps, newProps) => {
+    for (const key in newProps) {
+      hostPatchProp(el, key, oldProps[key],  newProps[key])
+    }
+    for (const key in oldProps) {
+      if (isNullish(newProps[key])) {
+        hostPatchProp(el, key, oldProps[key], null)
+      }
+    }
+  }
+
+  const patchElement = (n1, n2, container) => {
+    const el = n2.el = n1.el
+    const oldProps = n1.props || {}
+    const newProps = n2.props || {}
+    patchProps(el, oldProps, newProps)
+  }
+
   const processText = (n1, n2, container) => {
     if (n1 === null) {
       hostInsert(n2.el = hostCreateText(n2.children), container)
@@ -73,7 +91,7 @@ export function createRenderer(renderOptions) {
     if (isNullish(n1)) {
       mountElement(n2, container)
     } else {
-
+      patchElement(n1, n2, container)
     }
   }
 
