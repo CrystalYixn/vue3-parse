@@ -14,11 +14,20 @@
     <script>
       const { render, h, Text } = VueRuntimeDOM
       render(
-        h('h1', { style: { color: 'red' } }, 'abc'),
+        h('h1', { style: { color: 'red' } }, [
+          h('li', { key: 'a' }, 'a'),
+          h('li', { key: 'b' }, 'b'),
+          h('li', { key: 'c' }, 'c'),
+        ]),
         app
       )
       setTimeout(() => {
-        render(h('h1', { style: { color: 'blue', background: 'red' } }, ['1111', '111']), app)
+        render(h('h1', { style: { color: 'blue', background: 'red' } }, [
+          h('li', { key: 'a' }, 'a'),
+          h('li', { key: 'b' }, 'b'),
+          h('li', { key: 'd' }, 'd'),
+          h('li', { key: 'e' }, 'e'),
+        ]), app)
       }, 1000)
     </script>
   </body>

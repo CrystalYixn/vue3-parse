@@ -71,6 +71,23 @@ export function createRenderer(renderOptions) {
     }
   }
 
+  const patchKeyedChildren = (c1, c2, el) => {
+    let i = 0
+    let e1 = c1.length
+    let e2 = c2.length
+    // sync from start, 新旧列表都从头开始比较
+    // 出现第一个不一致的子元素或者任意一个到尾部结束
+    while (i < e1 && i < e2) {
+      if (isSameVnode(c1[i], c2[i])) {
+        patch(c1[i], c2[i], el)
+      } else {
+        break
+      }
+      i++
+    }
+    console.log(i, e1, e2)
+  }
+
   const unmountChildren = (children) => {
     children.forEach(child => {
       unmount(child)
@@ -97,7 +114,7 @@ export function createRenderer(renderOptions) {
       if (prevShapeFlag & ShapeFlag.ARRAY_CHILDREN) {
         // 新孩子也是数组则进入 diff
         if (shapeFlag & ShapeFlag.ARRAY_CHILDREN) {
-
+          patchKeyedChildren(c1, c2, el)
         } else {
           // 新孩子是空则清空旧孩子
           unmountChildren(c1)
@@ -116,7 +133,8 @@ export function createRenderer(renderOptions) {
     }
   }
 
-  const patchElement = (n1, n2, container) => {
+  /** 更新 vnode 对应的 element 属性与孩子 */
+  const patchElement = (n1, n2) => {
     const el = n2.el = n1.el
     const oldProps = n1.props || {}
     const newProps = n2.props || {}
@@ -138,10 +156,11 @@ export function createRenderer(renderOptions) {
     if (isNullish(n1)) {
       mountElement(n2, container)
     } else {
-      patchElement(n1, n2, container)
+      patchElement(n1, n2)
     }
   }
 
+  /** 将 vnode 渲染到元素中 */
   const patch = (n1, n2, container) => {
     if (n1 === n2) return
     const { type, shapeFlag } = n2
