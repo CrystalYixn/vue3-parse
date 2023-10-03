@@ -4,6 +4,8 @@ export function isVnode(value) {
   return !!(value?.__v_isVnode)
 }
 
+export const Text = Symbol('Text')
+
 export function createVnode(type, props, children = null) {
   // 组合方案 shapeFlag, 利用位二进制和运算符可以快速进行类型的组合与包含判断
   let shapeFlag = isString(type) ? ShapeFlag.ELEMENT : 0

@@ -12,16 +12,21 @@
     <!-- <script src="packages/reactivity/dist/reactivity.global.js"></script> -->
     <script src="./packages/runtime-dom/dist/runtime-dom.global.js"></script>
     <script>
-      const { render, h } = VueRuntimeDOM
+      const { render, h, Text } = VueRuntimeDOM
+      // render(h(Text, 'hello'), app)
       render(
         h(
           'h1',
           { style: { color: 'red' },
           onClick:() => alert(1) },
-          [h('span', 'hello'), h('span', 'world')],
+          // [h('span', 'hello'), h('span', 'world')],
+          ['123'],
         ),
         app
       )
+      setTimeout(() => {
+        render(null, app)
+      }, 1000)
     </script>
   </body>
 </html>
