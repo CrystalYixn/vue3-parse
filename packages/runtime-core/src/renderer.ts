@@ -97,14 +97,21 @@ export function createRenderer(renderOptions) {
       e1--
       e2--
     }
-    // common sequence 同序列挂载, 其他部分完全一样, 只有新增的部分在前或在后
     if (i > e1) {
+      // common sequence 同序列挂载, 其他部分完全一样, 只有新增的部分在前或在后
       if (i <= e2) {
         while (i <= e2) {
           const nextPos = e2 + 1
           // 根据是否存在下一个元素来判断是插入还是追究
           const anchor = nextPos < c2.length ? c2[nextPos].el : null
           patch(null, c2[i++], el, anchor)
+        }
+      }
+    } else {
+      // 同序列删除
+      if (i > e2) {
+        while (i <= e1) {
+          unmount(c1[i++])
         }
       }
     }
