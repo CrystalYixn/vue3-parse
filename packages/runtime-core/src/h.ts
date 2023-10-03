@@ -15,7 +15,7 @@ export function h(type, propsChildren, children) {
   } else {
     if (l > 3) {
       children = Array.from(arguments).slice(2) 
-    } else if (l === 3) {
+    } else if (l === 3 && isVnode(children)) {
       children = [children]
     }
     return createVnode(type, propsChildren, children)

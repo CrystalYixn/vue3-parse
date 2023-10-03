@@ -21,7 +21,7 @@ export const isNumber = (val: unknown): val is number => {
 }
 
 export const isNullish = (val: unknown): val is undefined|null => {
-  return typeof val === 'undefined' || typeof val === null
+  return val === undefined || val === null
 }
 
 export const enum ShapeFlag {

@@ -14,7 +14,12 @@
     <script>
       const { render, h } = VueRuntimeDOM
       render(
-        h('h1', { style: { color: 'red' } }, 'hello'),
+        h(
+          'h1',
+          { style: { color: 'red' },
+          onClick:() => alert(1) },
+          [h('span', 'hello'), h('span', 'world')],
+        ),
         app
       )
     </script>

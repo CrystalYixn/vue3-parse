@@ -8,7 +8,7 @@ export function patchProp(el, key, prevValue, nextValue) {
     patchClass(el ,nextValue)
   } else if (key === 'style') {
     patchStyle(el, prevValue, nextValue)
-  } else if (key.startWith('on')) {
+  } else if (key.startsWith('on')) {
     patchEvent(el, key, nextValue)
   } else {
     patchAttr(el, key, nextValue)
