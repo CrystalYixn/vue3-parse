@@ -44,7 +44,7 @@ export function createRenderer(renderOptions) {
     children.forEach((child, i) => patch(null, normalize(children, i), container))
   }
 
-  function mountElement(vnode, container) {
+  function mountElement(vnode, container, anchor) {
     const { type, props, shapeFlag, children } = vnode
     const el = vnode.el = hostCreateElement(type)
     if (props) {
@@ -57,7 +57,7 @@ export function createRenderer(renderOptions) {
     } else if (shapeFlag & ShapeFlag.ARRAY_CHILDREN) {
       mountChildren(children, el)
     }
-    hostInsert(el, container)
+    hostInsert(el, container, anchor)
   }
 
   const patchProps = (el, oldProps, newProps) => {
@@ -97,7 +97,17 @@ export function createRenderer(renderOptions) {
       e1--
       e2--
     }
-    console.log(i, e1, e2)
+    // common sequence 同序列挂载, 其他部分完全一样, 只有新增的部分在前或在后
+    if (i > e1) {
+      if (i <= e2) {
+        while (i <= e2) {
+          const nextPos = e2 + 1
+          // 根据是否存在下一个元素来判断是插入还是追究
+          const anchor = nextPos < c2.length ? c2[nextPos].el : null
+          patch(null, c2[i++], el, anchor)
+        }
+      }
+    }
   }
 
   const unmountChildren = (children) => {
@@ -164,16 +174,16 @@ export function createRenderer(renderOptions) {
     }
   }
 
-  const processElement = (n1, n2, container) => {
+  const processElement = (n1, n2, container, anchor) => {
     if (isNullish(n1)) {
-      mountElement(n2, container)
+      mountElement(n2, container, anchor)
     } else {
       patchElement(n1, n2)
     }
   }
 
-  /** 将 vnode 渲染到元素中 */
-  const patch = (n1, n2, container) => {
+  /** 将 vnode 渲染到元素中 (处理渲染类型, 卸载旧节点) */
+  const patch = (n1, n2, container, anchor = null) => {
     if (n1 === n2) return
     const { type, shapeFlag } = n2
     // 如果两次标签都不同, 则直接卸载后重新挂载
@@ -187,7 +197,7 @@ export function createRenderer(renderOptions) {
         break;      
       default:
         if (shapeFlag & ShapeFlag.ELEMENT) {
-          processElement(n1, n2, container)
+          processElement(n1, n2, container, anchor)
         }
         break;
     }

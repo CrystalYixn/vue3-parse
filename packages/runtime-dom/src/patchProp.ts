@@ -7,7 +7,7 @@ export function patchProp(el, key, prevValue, nextValue) {
   if (key === 'class') {
     patchClass(el ,nextValue)
   } else if (key === 'style') {
-    patchStyle(el, prevValue, nextValue)
+    patchStyle(el, prevValue, nextValue || {})
   } else if (key.startsWith('on')) {
     patchEvent(el, key, nextValue)
   } else {
