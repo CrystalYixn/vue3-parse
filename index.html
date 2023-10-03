@@ -15,17 +15,18 @@
       const { render, h, Text } = VueRuntimeDOM
       // render(h(Text, 'hello'), app)
       render(
-        h(
-          'h1',
-          { style: { color: 'red' },
-          onClick:() => alert(1) },
-          // [h('span', 'hello'), h('span', 'world')],
-          ['123'],
-        ),
+        h(Text, '777'),
+        // h(
+        //   'h1',
+        //   { style: { color: 'red' },
+        //   onClick:() => alert(1) },
+        //   // [h('span', 'hello'), h('span', 'world')],
+        //   ['123'],
+        // ),
         app
       )
       setTimeout(() => {
-        render(null, app)
+        render(h(Text, '666'), app)
       }, 1000)
     </script>
   </body>

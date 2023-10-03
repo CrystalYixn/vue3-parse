@@ -1,5 +1,5 @@
 import { ShapeFlag, isNullish, isString } from "@vue/shared"
-import { Text, createVnode } from "./vnode"
+import { Text, createVnode, isSameVnode } from "./vnode"
 
 /** 创建一个渲染器, 渲染器本身与平台无关, 接收传入的平台操作实现作为入参 */
 export function createRenderer(renderOptions) {
@@ -20,10 +20,13 @@ export function createRenderer(renderOptions) {
   }
 
   const render = (vnode, container) => {
-    // 之前渲染过, 执行卸载逻辑
-    if (isNullish(vnode) && container?._vnode) {
+    const oldVnode = container?._vnode
+    if (vnode && oldVnode) {
+      patch(container._vnode, vnode, container)
+    } else if (oldVnode) {
+      // 之前渲染过, 执行卸载逻辑
       unmount(container._vnode)
-    } else {
+    } else if (vnode) {
       patch(null, vnode, container)
     }
     container._vnode = vnode
@@ -59,25 +62,38 @@ export function createRenderer(renderOptions) {
   const processText = (n1, n2, container) => {
     if (n1 === null) {
       hostInsert(n2.el = hostCreateText(n2.children), container)
+    } else {
+      if (n1.children !== n2.children) {
+        hostSetText(n2.el = n1.el, n2.children)
+      }
+    }
+  }
+
+  const processElement = (n1, n2, container) => {
+    if (isNullish(n1)) {
+      mountElement(n2, container)
+    } else {
+
     }
   }
 
   const patch = (n1, n2, container) => {
     if (n1 === n2) return
     const { type, shapeFlag } = n2
-    if (isNullish(n1)) {
-      switch (type) {
-        case Text:
-          processText(n1, n2, container)
-          break;      
-        default:
-          if (shapeFlag & ShapeFlag.ELEMENT) {
-            mountElement(n2, container)
-          }
-          break;
-      }
-    } else {
-
+    // 如果两次标签都不同, 则直接卸载后重新挂载
+    if (n1 && !isSameVnode(n1, n2)) {
+      unmount(n1)
+      n1 = null
+    }
+    switch (type) {
+      case Text:
+        processText(n1, n2, container)
+        break;      
+      default:
+        if (shapeFlag & ShapeFlag.ELEMENT) {
+          processElement(n1, n2, container)
+        }
+        break;
     }
   }
 
