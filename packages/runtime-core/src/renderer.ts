@@ -1,5 +1,5 @@
 import { ShapeFlag, isNullish, isString } from "@vue/shared"
-import { Text, createVnode, isSameVnode } from "./vnode"
+import { Fragment, Text, createVnode, isSameVnode } from "./vnode"
 import { getSequence } from "./sequence"
 
 /** 创建一个渲染器, 渲染器本身与平台无关, 接收传入的平台操作实现作为入参 */
@@ -223,8 +223,16 @@ export function createRenderer(renderOptions) {
     patchChildren(n1, n2, el)
   }
 
+  const processFragment = (n1, n2, container) => {
+    if (isNullish(n1)) {
+      mountChildren(n2.children, container)
+    } else {
+      patchChildren(n1, n2, container)
+    }
+  }
+
   const processText = (n1, n2, container) => {
-    if (n1 === null) {
+    if (isNullish(n1)) {
       hostInsert(n2.el = hostCreateText(n2.children), container)
     } else {
       if (n1.children !== n2.children) {
@@ -253,6 +261,9 @@ export function createRenderer(renderOptions) {
     switch (type) {
       case Text:
         processText(n1, n2, container)
+        break;      
+      case Fragment:
+        processFragment(n1, n2, container, anchor)
         break;      
       default:
         if (shapeFlag & ShapeFlag.ELEMENT) {
