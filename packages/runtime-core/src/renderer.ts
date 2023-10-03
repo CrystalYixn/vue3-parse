@@ -1,5 +1,6 @@
 import { ShapeFlag, isNullish, isString } from "@vue/shared"
 import { Text, createVnode, isSameVnode } from "./vnode"
+import { getSequence } from "./sequence"
 
 /** 创建一个渲染器, 渲染器本身与平台无关, 接收传入的平台操作实现作为入参 */
 export function createRenderer(renderOptions) {
@@ -145,6 +146,9 @@ export function createRenderer(renderOptions) {
         unmount(oldChild)
       }
     }
+    // 获取最长递增子序列, [5, 3, 4, 0] -> [1, 2]
+    let increment = getSequence(newIndexToOldIndex)
+    let j = increment.length - 1
     // 移动元素位置, 倒叙插入 (因为 insert 方法只能向前插入)
     for (let i = toBePatched - 1; i >= 0; i--) {
       const index = i + s2
@@ -154,9 +158,15 @@ export function createRenderer(renderOptions) {
       if (newIndexToOldIndex[i] === 0) {
         patch(null, current, el, anchor)
       } else {
-        hostInsert(current.el, el, anchor)
+        // 跳过不需要移动的节点
+        if (i !== increment[j]) {
+          hostInsert(current.el, el, anchor)
+        } else {
+          j--
+        }
       }
     }
+    // 贪心、二分查找、前节点追溯
   }
 
   const unmountChildren = (children) => {
