@@ -73,17 +73,29 @@ export function createRenderer(renderOptions) {
 
   const patchKeyedChildren = (c1, c2, el) => {
     let i = 0
-    let e1 = c1.length
-    let e2 = c2.length
+    let e1 = c1.length - 1
+    let e2 = c2.length - 1
     // sync from start, 新旧列表都从头开始比较
     // 出现第一个不一致的子元素或者任意一个到尾部结束
-    while (i < e1 && i < e2) {
+    while (i <= e1 && i <= e2) {
       if (isSameVnode(c1[i], c2[i])) {
         patch(c1[i], c2[i], el)
       } else {
         break
       }
       i++
+    }
+    // sync from end
+    while (i <= e1 && i <= e2) {
+      const n1 = c1[e1]
+      const n2 = c2[e2]
+      if (isSameVnode(n1, n2)) {
+        patch(n1, n2, el)
+      } else {
+        break
+      }
+      e1--
+      e2--
     }
     console.log(i, e1, e2)
   }
