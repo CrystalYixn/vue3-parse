@@ -71,6 +71,9 @@ export function createRenderer(renderOptions) {
     }
   }
 
+  /** diff 算法
+   * 核心为：多指针顺序比对, 映射表兜底, 乱序比对
+   */
   const patchKeyedChildren = (c1, c2, el) => {
     let i = 0
     let e1 = c1.length - 1
@@ -113,6 +116,45 @@ export function createRenderer(renderOptions) {
         while (i <= e1) {
           unmount(c1[i++])
         }
+      }
+    }
+    /** 乱序比对 (三次循环)
+     * 1. 记录 key -> index 映射表
+     * 2. 更新新旧孩子差异
+     * 3. 移动旧孩子位置
+     */
+    const s1 = i
+    const s2 = i
+    const keyToNewIndexMap = new Map()
+    // 将新孩子差异部分的 key -> index 存入 map 中
+    for (let i = s2; i <= e2; i++) {
+      keyToNewIndexMap.set(c2[i].props?.key, i)
+    }
+    // 中间乱序元素的长度
+    const toBePatched = e2 - s2 + 1
+    // 记录已经 patch 过元素的原始下标
+    const newIndexToOldIndex = new Array(toBePatched).fill(0)
+    // 遍历旧孩子差异部分, 进行更新差异并维护 patch 过的记录数组
+    for (let i = s1; i <= e1; i++) {
+      const oldChild = c1[i]
+      const newIndex = keyToNewIndexMap.get(oldChild.props?.key)
+      if (newIndex) {
+        newIndexToOldIndex[newIndex - s2] = i + 1
+        patch(oldChild, c2[newIndex], el)
+      } else {
+        unmount(oldChild)
+      }
+    }
+    // 移动元素位置, 倒叙插入 (因为 insert 方法只能向前插入)
+    for (let i = toBePatched - 1; i >= 0; i--) {
+      const index = i + s2
+      const current = c2[index]
+      const anchor = index + 1 > c2.length ? null : c2[index + 1].el
+      // 如果没有 patch 过则肯定为新增元素
+      if (newIndexToOldIndex[i] === 0) {
+        patch(null, current, el, anchor)
+      } else {
+        hostInsert(current.el, el, anchor)
       }
     }
   }
@@ -162,7 +204,7 @@ export function createRenderer(renderOptions) {
     }
   }
 
-  /** 更新 vnode 对应的 element 属性与孩子 */
+  /** 更新差异, 处理 vnode 对应的 element 属性与孩子 */
   const patchElement = (n1, n2) => {
     const el = n2.el = n1.el
     const oldProps = n1.props || {}

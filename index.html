@@ -15,10 +15,13 @@
       const { render, h, Text } = VueRuntimeDOM
       render(
         h('h1', { style: { color: 'red' } }, [
-          h('li', { key: 'd', }, 'd'),
-          h('li', { key: 'a', style: { color: 'yellow' } }, 'a'),
+          h('li', { key: 'a' }, 'a'),
           h('li', { key: 'b' }, 'b'),
           h('li', { key: 'c' }, 'c'),
+          h('li', { key: 'd' }, 'd'),
+          h('li', { key: 'e' }, 'e'),
+          h('li', { key: 'f' }, 'f'),
+          h('li', { key: 'g' }, 'g'),
         ]),
         app
       )
@@ -26,7 +29,12 @@
         render(h('h1', { style: { color: 'blue', background: 'red' } }, [
           h('li', { key: 'a' }, 'a'),
           h('li', { key: 'b' }, 'b'),
+          h('li', { key: 'e' }, 'e'),
           h('li', { key: 'c' }, 'c'),
+          h('li', { key: 'd' }, 'd'),
+          h('li', { key: 'h' }, 'h'),
+          h('li', { key: 'f' }, 'f'),
+          h('li', { key: 'g' }, 'g'),
         ]), app)
       }, 1000)
     </script>
